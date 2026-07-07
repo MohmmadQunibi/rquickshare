@@ -715,7 +715,11 @@ impl InboundRequest {
                 self.send_keepalive(true).await?;
             }
             _ => {
-                error!("Unhandled offline frame encrypted: {:?}", offline);
+                // Newer Nearby/Quick Share protocol versions send frame types this
+                // build doesn't model (e.g. V1Frame type 12 seen over the BLE
+                // medium). They are non-fatal — the transfer still completes — so log at
+                // debug rather than error to avoid noise.
+                debug!("Ignoring unhandled encrypted offline frame: {:?}", offline);
             }
         }
 
