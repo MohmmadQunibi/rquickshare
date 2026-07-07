@@ -16,6 +16,10 @@ pub use ble::*;
 mod blea;
 #[cfg(all(feature = "experimental", target_os = "linux"))]
 pub use blea::*;
+#[cfg(all(feature = "experimental", target_os = "linux"))]
+mod ble_medium;
+#[cfg(all(feature = "experimental", target_os = "linux"))]
+pub use ble_medium::*;
 mod inbound;
 pub use inbound::*;
 pub(crate) mod info;

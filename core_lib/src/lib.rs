@@ -29,6 +29,8 @@ mod manager;
 mod utils;
 
 pub use hdl::{EndpointInfo, OutboundPayload, State, Visibility};
+#[cfg(all(feature = "experimental", target_os = "linux"))]
+pub use hdl::BleServer;
 pub use manager::SendInfo;
 pub use utils::DeviceType;
 
