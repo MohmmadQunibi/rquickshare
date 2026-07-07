@@ -145,6 +145,27 @@ impl RQS {
             }
         }
 
+        // Start the BLE receive medium (offline Quick Share over BLE + L2CAP CoC),
+        // so phones that drop WiFi when opening the share sheet can still send to
+        // us. Linux-only (bluer/L2CAP); non-fatal if the adapter is missing.
+        #[cfg(all(feature = "experimental", target_os = "linux"))]
+        {
+            match crate::hdl::BleServer::new(
+                endpoint_id[..4].try_into()?,
+                self.message_sender.clone(),
+            )
+            .await
+            {
+                Ok(ble_server) => {
+                    let ctk = ctoken.clone();
+                    tracker.spawn(async move { ble_server.run(ctk).await });
+                }
+                Err(e) => {
+                    error!("Failed to start BLE receive server (non-fatal): {e}");
+                }
+            }
+        }
+
         // Start MDnsServer in own "task"
         let mut mdns = MDnsServer::new(
             endpoint_id[..4].try_into()?,
