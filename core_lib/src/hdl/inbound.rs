@@ -13,7 +13,6 @@ use prost::Message;
 use rand::Rng;
 use sha2::{Digest, Sha256, Sha512};
 use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
 use tokio::sync::broadcast::{Receiver, Sender};
 
 use super::{InnerState, State};
@@ -45,16 +44,32 @@ type HmacSha256 = Hmac<Sha256>;
 const SANE_FRAME_LENGTH: i32 = 5 * 1024 * 1024;
 const SANITY_DURATION: Duration = Duration::from_micros(10);
 
-#[derive(Debug)]
+/// Any byte-stream transport that `InboundRequest` can run over (e.g. TCP
+/// today, BLE L2CAP later). Blanket-implemented for every type that already
+/// satisfies the bounds, so existing transports need no extra work.
+pub trait AsyncStream: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send + Sync {}
+impl<T: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send + Sync> AsyncStream for T {}
+
 pub struct InboundRequest {
-    socket: TcpStream,
+    socket: Box<dyn AsyncStream>,
     pub state: InnerState,
     sender: Sender<ChannelMessage>,
     receiver: Receiver<ChannelMessage>,
 }
 
+impl std::fmt::Debug for InboundRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("InboundRequest")
+            .field("socket", &"Box<dyn AsyncStream>")
+            .field("state", &self.state)
+            .field("sender", &self.sender)
+            .field("receiver", &self.receiver)
+            .finish()
+    }
+}
+
 impl InboundRequest {
-    pub fn new(socket: TcpStream, id: String, sender: Sender<ChannelMessage>) -> Self {
+    pub fn new(socket: Box<dyn AsyncStream>, id: String, sender: Sender<ChannelMessage>) -> Self {
         let receiver = sender.subscribe();
 
         Self {
@@ -1344,5 +1359,33 @@ impl InboundRequest {
         // some spare time to process channel's message. Otherwise it
         // get spammed by new requests. Currently set to 10 micro secs.
         tokio::time::sleep(SANITY_DURATION).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use tokio::io::AsyncReadExt;
+
+    use super::*;
+
+    /// `InboundRequest` must be constructible over ANY `AsyncStream`, not
+    /// just a `TcpStream`. Prove it here with an in-memory `tokio::io::duplex`
+    /// pair (no hardware/socket involved), and check that `send_frame`
+    /// still produces the exact same `[4-byte BE length][data]` wire format
+    /// it always has.
+    #[tokio::test]
+    async fn send_frame_round_trips_over_any_async_stream() {
+        let (client_end, mut server_end) = tokio::io::duplex(1024);
+
+        let (sender, _receiver) = tokio::sync::broadcast::channel(16);
+        let mut inbound =
+            InboundRequest::new(Box::new(client_end), "test-id".to_string(), sender);
+
+        inbound.send_frame(vec![1, 2, 3]).await.unwrap();
+
+        let mut received = [0u8; 7];
+        server_end.read_exact(&mut received).await.unwrap();
+
+        assert_eq!(received, [0, 0, 0, 3, 1, 2, 3]);
     }
 }
