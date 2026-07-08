@@ -29,6 +29,8 @@ mod manager;
 mod utils;
 
 pub use hdl::{EndpointInfo, OutboundPayload, State, Visibility};
+#[cfg(all(feature = "experimental", target_os = "linux"))]
+pub use hdl::BleServer;
 pub use manager::SendInfo;
 pub use utils::DeviceType;
 
@@ -140,6 +142,27 @@ impl RQS {
             if let Ok(ble) = BleListener::new(self.ble_sender.clone()).await {
                 let ctk = ctoken.clone();
                 tracker.spawn(async move { ble.run(ctk).await });
+            }
+        }
+
+        // Start the BLE receive medium (offline Quick Share over BLE + L2CAP CoC),
+        // so phones that drop WiFi when opening the share sheet can still send to
+        // us. Linux-only (bluer/L2CAP); non-fatal if the adapter is missing.
+        #[cfg(all(feature = "experimental", target_os = "linux"))]
+        {
+            match crate::hdl::BleServer::new(
+                endpoint_id[..4].try_into()?,
+                self.message_sender.clone(),
+            )
+            .await
+            {
+                Ok(ble_server) => {
+                    let ctk = ctoken.clone();
+                    tracker.spawn(async move { ble_server.run(ctk).await });
+                }
+                Err(e) => {
+                    error!("Failed to start BLE receive server (non-fatal): {e}");
+                }
             }
         }
 

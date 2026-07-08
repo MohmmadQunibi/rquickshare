@@ -68,7 +68,7 @@ impl TcpServer {
                             let csender = self.sender.clone();
 
                             tokio::spawn(async move {
-                                let mut ir = InboundRequest::new(socket, remote_addr.to_string(), csender);
+                                let mut ir = InboundRequest::new(Box::new(socket), remote_addr.to_string(), csender);
 
                                 loop {
                                     match ir.handle().await {
