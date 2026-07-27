@@ -1,4 +1,4 @@
-use rqs_lib::SendInfo;
+use mqs_lib::SendInfo;
 
 use crate::AppState;
 

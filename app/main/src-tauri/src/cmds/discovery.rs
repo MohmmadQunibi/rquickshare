@@ -5,7 +5,7 @@ pub async fn start_discovery(state: tauri::State<'_, AppState>) -> Result<(), St
     info!("start_discovery");
 
     state
-        .rqs
+        .mqs
         .lock()
         .unwrap()
         .discovery(state.dch_sender.clone())
@@ -16,5 +16,5 @@ pub async fn start_discovery(state: tauri::State<'_, AppState>) -> Result<(), St
 pub fn stop_discovery(state: tauri::State<'_, AppState>) {
     info!("stop_discovery");
 
-    state.rqs.lock().unwrap().stop_discovery();
+    state.mqs.lock().unwrap().stop_discovery();
 }

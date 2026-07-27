@@ -2,7 +2,7 @@
 //!
 //! Advertises this machine as a Nearby / Quick Share endpoint over BLE and, for
 //! every accepted L2CAP CoC connection, bridges the Nearby data tier into
-//! rquickshare's real [`InboundRequest`](crate::hdl::InboundRequest) state
+//! mquickshare's real [`InboundRequest`](crate::hdl::InboundRequest) state
 //! machine over an in-memory [`tokio::io::duplex`].
 
 use std::collections::BTreeMap;
@@ -54,7 +54,7 @@ const LEGACY_FE2C_SERVICE_DATA: [u8; 24] = [
 /// DeviceType packing matches `crate::utils::gen_mdns_endpoint_info`
 /// (Laptop = 3, packed as `device_type << 1`).
 const DEVICE_TYPE_LAPTOP: u8 = 3;
-const DEVICE_NAME: &str = "RQS-Linux";
+const DEVICE_NAME: &str = "MQS-Linux";
 
 /// `BleAdvertisementHeader` size: 1 byte0 + 10-byte bloom filter + 4-byte
 /// advertisement hash + 2-byte PSM.
@@ -159,7 +159,7 @@ fn gen_device_token() -> [u8; 2] {
 /// 4 ASCII chars from the endpoint id charset used by client_proxy.cc
 /// (uppercase letters + digits). Kept as a helper for callers that want the
 /// `BleServer` to self-generate an endpoint id; `BleServer::new` currently takes
-/// the id from the shared RQS endpoint id instead.
+/// the id from the shared MQS endpoint id instead.
 #[allow(dead_code)]
 fn gen_endpoint_id() -> [u8; 4] {
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -676,7 +676,7 @@ fn handle_command_frame(
 /// * **inbound -> L2CAP** reads each `[4B len][OfflineFrame]` `InboundRequest`
 ///   emits on the duplex and queues it wrapped as an `fc9f5e` data frame.
 /// * **InboundRequest driver** runs the `handle()` loop (mirrors `manager.rs`,
-///   feeding the SHARED RQS `sender` so the app shows consent UI — NO auto-accept).
+///   feeding the SHARED MQS `sender` so the app shows consent UI — NO auto-accept).
 ///
 /// The handler returns when the L2CAP reader ends (EOF / DISCONNECTION / error)
 /// or when `ctk` is cancelled, tearing the remaining tasks down.
@@ -885,8 +885,8 @@ async fn handle_l2cap_connection(
 }
 
 /// A BLE receive medium: advertises this machine as a Nearby / Quick Share
-/// endpoint and, for every accepted L2CAP connection, runs rquickshare's real
-/// `InboundRequest` over the CoC — feeding the SHARED RQS message channel so the
+/// endpoint and, for every accepted L2CAP connection, runs mquickshare's real
+/// `InboundRequest` over the CoC — feeding the SHARED MQS message channel so the
 /// app's existing consent flow (Accept/Reject) applies, exactly like `TcpServer`.
 pub struct BleServer {
     endpoint_id: [u8; 4],
@@ -1004,7 +1004,7 @@ impl BleServer {
         let advertisement = Advertisement {
             advertisement_type: Type::Peripheral,
             discoverable: Some(true),
-            local_name: Some("rqs".into()),
+            local_name: Some("mqs".into()),
             service_uuids: [Uuid::from_u16(0xFEF3)].into(),
             service_data,
             ..Default::default()

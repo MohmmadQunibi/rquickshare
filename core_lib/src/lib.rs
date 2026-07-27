@@ -53,7 +53,7 @@ pub mod location_nearby_connections {
 static CUSTOM_DOWNLOAD: Lazy<RwLock<Option<PathBuf>>> = Lazy::new(|| RwLock::new(None));
 
 #[derive(Debug)]
-pub struct RQS {
+pub struct MQS {
     tracker: Option<TaskTracker>,
     ctoken: Option<CancellationToken>,
     // Discovery token is different than ctoken because he is on his own
@@ -72,13 +72,13 @@ pub struct RQS {
     pub message_sender: broadcast::Sender<ChannelMessage>,
 }
 
-impl Default for RQS {
+impl Default for MQS {
     fn default() -> Self {
         Self::new(Visibility::Visible, None, None)
     }
 }
 
-impl RQS {
+impl MQS {
     pub fn new(
         visibility: Visibility,
         port_number: Option<u32>,

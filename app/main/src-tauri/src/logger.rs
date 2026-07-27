@@ -11,7 +11,7 @@ use time::OffsetDateTime;
 use crate::store::get_logging_level;
 
 pub fn set_up_logging(app_handle: &AppHandle) -> Result<(), anyhow::Error> {
-    let default_level = match std::env::var("RQS_LOG") {
+    let default_level = match std::env::var("MQS_LOG") {
         Ok(r) => {
             println!("set_up_logging: level asked: {:?}", r);
             log::LevelFilter::from_str(&r).unwrap_or(log::LevelFilter::Debug)

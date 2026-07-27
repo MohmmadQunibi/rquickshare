@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use rqs_lib::RQS;
+use mqs_lib::MQS;
 use tokio::sync::broadcast;
 
 #[tokio::main]
@@ -17,17 +17,17 @@ async fn main() -> Result<(), anyhow::Error> {
     // Init logger/tracing
     tracing_subscriber::fmt::init();
 
-    // Start the RQuickShare service
-    let mut rqs = RQS::default();
-    rqs.run().await?;
+    // Start the MQuickShare service
+    let mut mqs = MQS::default();
+    mqs.run().await?;
 
     let discovery_channel = broadcast::channel(10);
-    rqs.discovery(discovery_channel.0)?;
+    mqs.discovery(discovery_channel.0)?;
 
-    // Wait for CTRL+C and then stop RQS
+    // Wait for CTRL+C and then stop MQS
     let _ = tokio::signal::ctrl_c().await;
     info!("Stopping service.");
-    rqs.stop().await;
+    mqs.stop().await;
 
     Ok(())
 }

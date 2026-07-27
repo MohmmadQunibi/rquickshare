@@ -29,13 +29,13 @@ for file in $files; do
     extension="${filename##*.}"
 
     # Extract the version and anything part
-    if [[ "$filename" =~ ([Rr]-?[Qq]uick[Ss]hare)_?([0-9]+\.[0-9]+\.[0-9]+)_(.*)\.${extension} ]]; then
+    if [[ "$filename" =~ ([Mm]-?[Qq]uick[Ss]hare)_?([0-9]+\.[0-9]+\.[0-9]+)_(.*)\.${extension} ]]; then
         version="v${BASH_REMATCH[2]}"
         anything="${BASH_REMATCH[3]}"
-    elif [[ "$filename" =~ ([Rr]-?[Qq]uick[Ss]hare)-([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+)\.(.*)\.${extension} ]]; then
+    elif [[ "$filename" =~ ([Mm]-?[Qq]uick[Ss]hare)-([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+)\.(.*)\.${extension} ]]; then
         version="v${BASH_REMATCH[2]}"
         anything="${BASH_REMATCH[3]}-${BASH_REMATCH[4]}"
-    elif [[ "$filename" =~ ([rR]([-_][qQ]uick[-_][sS]hare))_?([0-9]+\.[0-9]+\.[0-9]+)_?(.*)\.${extension} ]]; then
+    elif [[ "$filename" =~ ([mM]([-_][qQ]uick[-_][sS]hare))_?([0-9]+\.[0-9]+\.[0-9]+)_?(.*)\.${extension} ]]; then
         version="v${BASH_REMATCH[3]}"
         anything="${BASH_REMATCH[4]}"
     else
@@ -46,15 +46,15 @@ for file in $files; do
     # Construct the new filename based on the presence of glibc and debug_mode
     if [ -n "$glib_ver" ]; then
         if [ -n "$debug_mode" ]; then
-            new_filename="r-quick-share-${tauri_ver}-debug_${version}_glibc-${glib_ver}_${anything}.${extension}"
+            new_filename="m-quick-share-${tauri_ver}-debug_${version}_glibc-${glib_ver}_${anything}.${extension}"
         else
-            new_filename="r-quick-share-${tauri_ver}_${version}_glibc-${glib_ver}_${anything}.${extension}"
+            new_filename="m-quick-share-${tauri_ver}_${version}_glibc-${glib_ver}_${anything}.${extension}"
         fi
     else
         if [ -n "$debug_mode" ]; then
-            new_filename="r-quick-share-${tauri_ver}-debug_${version}_${anything}.${extension}"
+            new_filename="m-quick-share-${tauri_ver}-debug_${version}_${anything}.${extension}"
         else
-            new_filename="r-quick-share-${tauri_ver}_${version}_${anything}.${extension}"
+            new_filename="m-quick-share-${tauri_ver}_${version}_${anything}.${extension}"
         fi
     fi
 

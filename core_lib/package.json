@@ -17,13 +17,13 @@
 	},
 	"repository": {
 	  "type": "git",
-	  "url": "git+https://github.com/Martichou/rquickshare.git"
+	  "url": "git+https://github.com/MohmmadQunibi/mquickshare.git"
 	},
 	"author": "Martin ANDRE",
 	"bugs": {
-	  "url": "https://github.com/Martichou/rquickshare/issues"
+	  "url": "https://github.com/MohmmadQunibi/mquickshare/issues"
 	},
-	"homepage": "https://github.com/Martichou/rquickshare#readme",
+	"homepage": "https://github.com/MohmmadQunibi/mquickshare#readme",
 	"devDependencies": {
 	  "typescript": "^5.0.4"
 	}

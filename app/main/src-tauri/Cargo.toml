@@ -1,10 +1,10 @@
 [package]
-name = "rquickshare"
+name = "mquickshare"
 version = "0.11.5"
-default-run = "rquickshare"
+default-run = "mquickshare"
 edition = "2021"
 authors = ["martichou"]
-repository = "https://github.com/Martichou/rquickshare"
+repository = "https://github.com/MohmmadQunibi/mquickshare"
 license = "AGPL-3.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,7 +17,7 @@ fern = { version = "0.7", features = ["colored"] }
 humantime = "2.1"
 log = "0.4"
 notify-rust = "4.10"
-rqs_lib = { path = "../../../core_lib", features = ["experimental"] }
+mqs_lib = { path = "../../../core_lib", features = ["experimental"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sys_metrics = "0.2"

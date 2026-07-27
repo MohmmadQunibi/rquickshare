@@ -8,8 +8,8 @@ extern crate log;
 
 use std::sync::{Arc, Mutex};
 
-use rqs_lib::channel::{ChannelDirection, ChannelMessage};
-use rqs_lib::{EndpointInfo, SendInfo, State, Visibility, RQS};
+use mqs_lib::channel::{ChannelDirection, ChannelMessage};
+use mqs_lib::{EndpointInfo, SendInfo, State, Visibility, MQS};
 use store::get_startminimized;
 #[cfg(target_os = "macos")]
 use tauri::image::Image;
@@ -38,7 +38,7 @@ pub struct AppState {
     pub visibility_sender: Arc<Mutex<watch::Sender<Visibility>>>,
     pub sender_file: mpsc::Sender<SendInfo>,
     pub ble_receiver: broadcast::Receiver<()>,
-    pub rqs: Mutex<RQS>,
+    pub mqs: Mutex<MQS>,
 }
 
 #[tokio::main]
@@ -74,13 +74,13 @@ async fn main() -> Result<(), anyhow::Error> {
             // Setting up logging inside file for the app
             set_up_logging(app.app_handle())?;
 
-            debug!("Starting setup of RQuickShare app");
+            debug!("Starting setup of MQuickShare app");
 
             // Initialize default values for the store
             init_default(app.app_handle());
 
             // Initialize system Tray
-            let name = MenuItemBuilder::new("RQuickShare")
+            let name = MenuItemBuilder::new("MQuickShare")
                 .enabled(false)
                 .build(app)?;
             let show = MenuItemBuilder::with_id("show", "Show").build(app)?;
@@ -125,19 +125,19 @@ async fn main() -> Result<(), anyhow::Error> {
             // is. This allow me to get the whole log :)
             tokio::task::block_in_place(|| {
                 tauri::async_runtime::block_on(async move {
-                    trace!("Beginning of RQS start");
-                    // Start the RQuickShare service
-                    let mut rqs = RQS::new(visibility, port_number, download_path);
-                    let (sender_file, ble_receiver) = rqs.run().await.unwrap();
+                    trace!("Beginning of MQS start");
+                    // Start the MQuickShare service
+                    let mut mqs = MQS::new(visibility, port_number, download_path);
+                    let (sender_file, ble_receiver) = mqs.run().await.unwrap();
 
                     // Define state for tauri app
                     app_handle.manage(AppState {
-                        message_sender: rqs.message_sender.clone(),
+                        message_sender: mqs.message_sender.clone(),
                         dch_sender: broadcast::channel(10).0,
-                        visibility_sender: rqs.visibility_sender.clone(),
+                        visibility_sender: mqs.visibility_sender.clone(),
                         sender_file,
                         ble_receiver,
-                        rqs: Mutex::new(rqs),
+                        mqs: Mutex::new(mqs),
                     });
                 });
             });
@@ -320,7 +320,7 @@ fn kill_app(app_handle: &AppHandle) {
     tokio::task::block_in_place(|| {
         #[allow(clippy::await_holding_lock)]
         tauri::async_runtime::block_on(async move {
-            let _ = state.rqs.lock().unwrap().stop().await;
+            let _ = state.mqs.lock().unwrap().stop().await;
         });
     });
 

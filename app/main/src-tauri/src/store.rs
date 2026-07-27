@@ -1,6 +1,6 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use rqs_lib::Visibility;
+use mqs_lib::Visibility;
 use tauri::{AppHandle, Emitter, Wry};
 use tauri_plugin_store::{Store, StoreExt};
 

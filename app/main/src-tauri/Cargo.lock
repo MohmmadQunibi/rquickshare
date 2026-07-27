@@ -4220,7 +4220,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rqs_lib"
+name = "mqs_lib"
 version = "0.11.5"
 dependencies = [
  "anyhow",
@@ -4256,7 +4256,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rquickshare"
+name = "mquickshare"
 version = "0.11.5"
 dependencies = [
  "anyhow",
@@ -4264,7 +4264,7 @@ dependencies = [
  "humantime",
  "log",
  "notify-rust",
- "rqs_lib",
+ "mqs_lib",
  "serde",
  "serde_json",
  "sys_metrics 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",

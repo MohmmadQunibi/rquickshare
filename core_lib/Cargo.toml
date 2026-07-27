@@ -1,5 +1,5 @@
 [package]
-name = "rqs_lib"
+name = "mqs_lib"
 version = "0.11.5"
 edition = "2021"
 authors = ["martichou"]

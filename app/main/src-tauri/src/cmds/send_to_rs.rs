@@ -1,4 +1,4 @@
-use rqs_lib::channel::ChannelMessage;
+use mqs_lib::channel::ChannelMessage;
 
 use crate::AppState;
 
